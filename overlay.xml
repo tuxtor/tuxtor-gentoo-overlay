@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layman>
+    <overlay name="tuxtor" quality="experimental" status="unofficial"
+        type="git" src="git://github.com/tuxtor/tuxtor-gentoo-overlay.git">
+        <link>https://github.com/tuxtor/tuxtor-gentoo-overlay</link>
+        <description> Tuxtor Gentoo Overlay </description>
+    </overlay>
+</layman>
