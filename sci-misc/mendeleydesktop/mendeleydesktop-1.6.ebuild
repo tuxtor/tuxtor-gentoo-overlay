@@ -4,6 +4,13 @@
 
 EAPI="4"
 
+LICENSE="Mendeley-EULA"
+SLOT="0"
+KEYWORDS="~amd64 ~x86"
+IUSE=""
+RESTRICT="fetch"
+
+
 inherit eutils multilib
 
 MY_P_AMD64="${P}-linux-x86_64"
@@ -22,12 +29,7 @@ SRC_URI="amd64? ( ${MY_P_AMD64}.tar.bz2 )
 	amd64-linux? ( ${MY_P_AMD64}.tar.bz2 )
 	x86-linux? ( ${MY_P_X86}.tar.bz2 )"
 
-LICENSE="Mendeley-EULA"
-SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE=""
 
-RESTRICT="fetch"
 
 DEPEND=""
 RDEPEND=">=x11-libs/qt-core-4.6:4
