@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<layman>
-    <overlay name="tuxtor" quality="experimental" status="unofficial"
-        type="git" src="git://github.com/tuxtor/tuxtor-gentoo-overlay.git">
-        <link>https://github.com/tuxtor/tuxtor-gentoo-overlay</link>
-        <description> Tuxtor Gentoo Overlay </description>
-    </overlay>
-</layman>
+<!DOCTYPE repositories SYSTEM "/dtd/repositories.dtd">
+<repositories xmlns="" version="1.0">
+  <repo quality="experimental" status="unofficial">
+    <name>tuxtor</name>
+    <description>Tuxtor Personal Overlay</description>
+    <homepage>https://github.com/tuxtor/tuxtor-gentoo-overlay</homepage>
+    <owner>
+      <email>tuxtor@shekalug.org</email>
+      <name>Víctor Orozco</name>
+    </owner>
+    <source type="git">git://github.com/tuxtor/tuxtor-gentoo-overlay.git</source>
+    <feed></feed>
+  </repo>
+</repositories>
