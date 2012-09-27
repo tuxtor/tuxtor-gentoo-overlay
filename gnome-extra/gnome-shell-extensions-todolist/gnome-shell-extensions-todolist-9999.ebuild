@@ -42,7 +42,7 @@ src_compile() {
 
 src_install()	{
 	insinto /usr/share/gnome-shell/extensions
-	doins -r extensions/* || die
+	doins -r todolist-gnome-shell-extension/* || die
 	insinto /etc/xdg/gnome-shell-todolist/
 	doins metadata.json
 }
