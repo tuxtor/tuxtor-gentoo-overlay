@@ -41,10 +41,9 @@ src_compile() {
 }
 
 src_install()	{
-	insinto /usr/share/gnome-shell/extensions
-	doins -r todolist-gnome-shell-extension/* || die
-	insinto /etc/xdg/gnome-shell-todolist/
-	doins metadata.json
+	cd ${WORKDIR}/gnome-shell-extensions-todolist-9999
+	mkdir -p ${D}/usr/share/gnome-shell/extensions/todolist@bsaleil.org
+	cp -R * ${D}/usr/share/gnome-shell/extensions/todolist@bsaleil.org
 }
 
 pkg_postinst() {
