@@ -12,7 +12,7 @@ stdext_jar="jdbc2-stdext.jar"
 DESCRIPTION="A standard set of libs for Server-Side JDBC support"
 HOMEPAGE="http://java.sun.com/products/jdbc"
 SRC_URI="${stdext_src}"
-LICENSE="sun-bcla-jdbc2"
+LICENSE="Oracle-BCLA-JavaSE"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
 IUSE=""
@@ -29,7 +29,7 @@ pkg_nofetch() {
 	einfo " distributables automagically."
 	einfo
 	einfo " 1. Visit 'http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-database-419422.html'"
-	einfo " 2. Select ' JDBC Standard Extension Source 2.0'"
+	einfo " 2. Select 'JDBC Standard Extension Source 2.0'"
 	einfo " 3. Download ${stdext_src}"
 	einfo " 4. Move to ${DISTDIR}"
 	einfo
