@@ -72,6 +72,7 @@ src_prepare() {
 	# but libtool libsdl2-2.0.so, so many applications (e.g. Steam) fails to
 	# find system libsdl. This patch workaround this problem.
 	# See http://bugzilla.libsdl.org/show_bug.cgi?id=1743
+	epatch_user
 	epatch "${FILESDIR}/${PN}-add-libtool-export-cmake-v2.patch"
 	# Make headers more universal for 32/64 archs.
 	epatch "${FILESDIR}/${PN}-universal_sizeof_voidp.patch"
