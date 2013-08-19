@@ -6,7 +6,7 @@ inherit font
 
 MY_PN="font-ufsm-${PV}"
 
-DESCRIPTION="Standard font for UFSM University (formerly Humanist 521"
+DESCRIPTION="Standard font for UFSM University (formerly Humanist 521)"
 HOMEPAGE="http://sucuri.cpd.ufsm.br/_outros/idvisual.php"
 SRC_URI="http://sucuri.cpd.ufsm.br/_img/outros/idvisual_files/fontes.zip"
 
