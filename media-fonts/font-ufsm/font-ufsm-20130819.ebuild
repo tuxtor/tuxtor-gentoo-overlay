@@ -15,6 +15,4 @@ SLOT="0"
 KEYWORDS="amd64 x86 ~amd64-linux ~x86-linux"
 IUSE=""
 
-S="${WORKDIR}/${MY_PN}"
-FONT_S="${S}"
 FONT_SUFFIX="ttf"
