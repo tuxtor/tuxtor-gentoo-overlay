@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/Attic/nvidia-drivers-325.15.ebuild,v 1.7 2013/12/14 14:39:52 jer dead $
+# $Header: $
 
 EAPI=5
 
@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="GPL-2 NVIDIA-r1"
 SLOT="0"
-KEYWORDS="-* amd64 x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="acpi multilib kernel_FreeBSD kernel_linux pax_kernel +tools +X"
 RESTRICT="bindist mirror strip"
 EMULTILIB_PKG="true"
@@ -73,41 +73,6 @@ REQUIRED_USE="tools? ( X )"
 QA_PREBUILT="opt/* usr/lib*"
 
 S=${WORKDIR}/
-
-pkg_pretend() {
-
-	if use amd64 && has_multilib_profile && \
-		[ "${DEFAULT_ABI}" != "amd64" ]; then
-		eerror "This ebuild doesn't currently support changing your default ABI"
-		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
-	fi
-
-	if use kernel_linux && kernel_is ge 3 11 ; then
-		ewarn "Gentoo supports kernels which are supported by NVIDIA"
-		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/gentoo-sources-3.11"
-		ewarn "<sys-kernel/vanilla-sources-3.11"
-		ewarn ""
-		ewarn "You are free to utilize epatch_user to provide whatever"
-		ewarn "support you feel is appropriate, but will not receive"
-		ewarn "support as a result of those changes."
-		ewarn ""
-		ewarn "Do not file a bug report about this."
-	fi
-
-	# Since Nvidia ships 3 different series of drivers, we need to give the user
-	# some kind of guidance as to what version they should install. This tries
-	# to point the user in the right direction but can't be perfect. check
-	# nvidia-driver.eclass
-	nvidia-driver-check-warning
-
-	# Kernel features/options to check for
-	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
-	use x86 && CONFIG_CHECK+=" ~HIGHMEM"
-
-	# Now do the above checks
-	use kernel_linux && check_extra_config
-}
 
 pkg_setup() {
 	# try to turn off distcc and ccache for people that have a problem with it
@@ -176,6 +141,13 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-pax-usercopy.patch
 	fi
 
+	# Linux 3.11 support
+	epatch "${FILESDIR}"/${PN}-linux-3.11.patch
+	# Linux 3.12 support
+	if use kernel_linux && kernel_is ge 3 12 ; then
+		epatch "${FILESDIR}"/${PN}-linux-3.12.patch
+	fi
+
 	# Allow user patches so they can support RC kernels and whatever else
 	epatch_user
 }
@@ -240,16 +212,25 @@ src_install() {
 	if use kernel_linux; then
 		linux-mod_src_install
 
+		VIDEOGROUP="$(egetent group video | cut -d ':' -f 3)"
+		if [ -z "$VIDEOGROUP" ]; then
+			eerror "Failed to determine the video group gid."
+			die "Failed to determine the video group gid."
+		fi
+
 		# Add the aliases
-		# This file is tweaked with the appropriate video group in
-		# pkg_preinst, see bug #491414
+		[ -f "${FILESDIR}/nvidia-169.07" ] || die "nvidia missing in FILESDIR"
+		sed -e 's:PACKAGE:'${PF}':g' \
+			-e 's:VIDEOGID:'${VIDEOGROUP}':' "${FILESDIR}"/nvidia-169.07 > \
+			"${WORKDIR}"/nvidia
 		insinto /etc/modprobe.d
-		newins "${FILESDIR}"/nvidia-169.07 nvidia.conf
+		newins "${WORKDIR}"/nvidia nvidia.conf
 
 		# Ensures that our device nodes are created when not using X
 		exeinto "$(udev_get_udevdir)"
 		doexe "${FILESDIR}"/nvidia-udev.sh
 		udev_newrules "${FILESDIR}"/nvidia.udev-rule 99-nvidia.rules
+
 	elif use kernel_FreeBSD; then
 		if use x86-fbsd; then
 			insinto /boot/modules
@@ -331,8 +312,8 @@ src_install() {
 	# Desktop entries for nvidia-settings
 	if use tools ; then
 		# There is no icon in the FreeBSD tarball.
-		use kernel_FreeBSD || newicon ${NV_OBJ}/nvidia-settings.png ${PN}-settings.png
-		domenu "${FILESDIR}"/${PN}-settings.desktop
+		use kernel_FreeBSD || newicon ${NV_OBJ}/nvidia-settings.png nvidia-drivers-settings.png
+		domenu "${FILESDIR}"/nvidia-drivers-settings.desktop
 		exeinto /etc/X11/xinit/xinitrc.d
 		doexe "${FILESDIR}"/95-nvidia-settings
 	fi
@@ -351,8 +332,6 @@ src_install() {
 	fi
 
 	is_final_abi || die "failed to iterate through all ABIs"
-
-	readme.gentoo_create_doc
 }
 
 src_install-libs() {
@@ -395,20 +374,7 @@ src_install-libs() {
 }
 
 pkg_preinst() {
-	if use kernel_linux; then
-		linux-mod_pkg_preinst
-
-		local videogroup="$(egetent group video | cut -d ':' -f 3)"
-		if [ -z "${videogroup}" ]; then
-			eerror "Failed to determine the video group gid"
-			die "Failed to determine the video group gid"
-		else
-			sed -i \
-				-e "s:PACKAGE:${PF}:g" \
-				-e "s:VIDEOGID:${videogroup}:" \
-				"${D}"/etc/modprobe.d/nvidia.conf || die
-		fi
-	fi
+	use kernel_linux && linux-mod_pkg_preinst
 
 	# Clean the dynamic libGL stuff's home to ensure
 	# we dont have stale libs floating around
@@ -428,8 +394,21 @@ pkg_postinst() {
 	use X && "${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
 	"${ROOT}"/usr/bin/eselect opencl set --use-old nvidia
 
-	readme.gentoo_print_elog
-
+	elog "You must be in the video group to use the NVIDIA device"
+	elog "For more info, read the docs at"
+	elog "http://www.gentoo.org/doc/en/nvidia-guide.xml#doc_chap3_sect6"
+	elog
+	elog "This ebuild installs a kernel module and X driver. Both must"
+	elog "match explicitly in their version. This means, if you restart"
+	elog "X, you must modprobe -r nvidia before starting it back up"
+	elog
+	elog "To use the NVIDIA GLX, run \"eselect opengl set nvidia\""
+	elog
+	elog "To use the NVIDIA CUDA/OpenCL, run \"eselect opencl set nvidia\""
+	elog
+	elog "NVIDIA has requested that any bug reports submitted have the"
+	elog "output of nvidia-bug-report.sh included."
+	elog
 	if ! use X; then
 		elog "You have elected to not install the X.org driver. Along with"
 		elog "this the OpenGL libraries and VDPAU libraries were not"
