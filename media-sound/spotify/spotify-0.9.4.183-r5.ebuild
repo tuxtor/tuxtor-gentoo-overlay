@@ -9,11 +9,18 @@ DESCRIPTION="Spotify is a social music platform"
 HOMEPAGE="https://www.spotify.com/ch-de/download/previews/"
 MY_PV="${PV}.g644e24e.428-1"
 MY_P="${PN}-client_${MY_PV}"
+# Bundle a copy of libgcrypt, bug 494596
+LIBGCRYPT="libgcrypt.so.11.8.2"
 SRC_BASE="http://repository.spotify.com/pool/non-free/${PN:0:1}/${PN}/"
 SRC_URI="
-	x86?   ( ${SRC_BASE}${MY_P}_i386.deb )
-	amd64? ( ${SRC_BASE}${MY_P}_amd64.deb )
-	"
+	x86?   ( ${SRC_BASE}${MY_P}_i386.deb
+			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-amd64.xz
+		)
+	amd64? ( ${SRC_BASE}${MY_P}_amd64.deb 
+			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-x86.xz
+	)
+"
+
 LICENSE="Spotify"
 SLOT="0"
 #amd64 and x86 keywords removed due to security concerns, see bug 474010
@@ -44,7 +51,7 @@ RDEPEND="${DEPEND}
 		media-libs/freetype
 		dev-libs/openssl:0
 		dev-libs/glib:2
-		dev-libs/libgcrypt:0/20
+		dev-libs/libgcrypt
 		media-libs/libpng:1.2
 		dev-db/sqlite:3
 		sys-libs/zlib
@@ -155,6 +162,9 @@ src_install() {
 	dosym /usr/lib/libplc4.so "${SPOTIFY_HOME}/libplc4.so.9"
 	#TODO fix for x86
 	dosym /usr/lib/libudev.so "${SPOTIFY_HOME}/Data/libudev.so.0"
+	#hack to use bundled libgcrypt
+	insinto "${SPOTIFY_HOME}"
+	newins "${WORKDIR}/${LIBGCRYPT}-$(usev amd64)$(usev x86)" libgcrypt.so.11
 }
 
 pkg_preinst() {
