@@ -14,10 +14,10 @@ LIBGCRYPT="libgcrypt.so.11.8.2"
 SRC_BASE="http://repository.spotify.com/pool/non-free/${PN:0:1}/${PN}/"
 SRC_URI="
 	x86?   ( ${SRC_BASE}${MY_P}_i386.deb
-			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-amd64.xz
+			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-x86.xz
 		)
 	amd64? ( ${SRC_BASE}${MY_P}_amd64.deb 
-			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-x86.xz
+			 http://dev.gentoo.org/~floppym/dist/${LIBGCRYPT}-amd64.xz
 	)
 "
 
